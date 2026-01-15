@@ -28,13 +28,15 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     onNavigateBack: () -> Unit,
-    onRegisterSuccess: () -> Unit
+    onRegisterSuccess: () -> Unit,
+    userViewModel: UserViewModel = viewModel()
 ) {
     Scaffold(
         topBar = {
@@ -95,7 +97,7 @@ fun RegisterScreen(
             Text(
                 text = "Create a new account",
                 style = MaterialTheme.typography.bodyLarge,
-                color = TextGray,
+                color = Color.Gray,
                 modifier = Modifier.padding(top = 8.dp)
             )
 
@@ -115,7 +117,7 @@ fun RegisterScreen(
                     Icon(
                         Icons.Default.Person,
                         contentDescription = null,
-                        tint = TextGray
+                        tint = Color.Gray
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -151,7 +153,7 @@ fun RegisterScreen(
             Button(
                 onClick = {
                     if (username.isNotEmpty() && password.isNotEmpty() && password == confirmPassword) {
-                        // TODO: Add actual registration logic here (e.g., Firebase auth)
+                        userViewModel.addUser(username, password)
                         onRegisterSuccess()
                     }
                 },
@@ -168,7 +170,7 @@ fun RegisterScreen(
 
             // Footer link back to login
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Already have an account? ", color = TextGray)
+                Text("Already have an account? ", color = Color.Gray)
                 Text(
                     text = "Sign In",
                     color = GreenPrimary,
@@ -192,12 +194,12 @@ fun InputPassword(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = TextGray) },
+        leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null, tint = Color.Gray) },
         trailingIcon = {
             val image =
                 if (passwordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                Icon(imageVector = image, contentDescription = null, tint = TextGray)
+                Icon(imageVector = image, contentDescription = null, tint = Color.Gray)
             }
         },
         modifier = Modifier.fillMaxWidth(),

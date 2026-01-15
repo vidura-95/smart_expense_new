@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material.icons.filled.ShoppingBag
@@ -17,6 +18,9 @@ import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.math.abs
 
 
@@ -42,13 +47,33 @@ val ColorOther = Color(0xFF0288D1)   // Blue
 fun DashboardScreen(
     onNavigateToFood: () -> Unit,
     onNavigateToClothes: () -> Unit,
-    onNavigateToOther: () -> Unit
+    onNavigateToOther: () -> Unit,
+    expenseViewModel: ExpenseViewModel = viewModel(),
+    onLogout: () -> Unit
 ) {
+    // Load sums once when the screen appears
+    LaunchedEffect(Unit) {
+        expenseViewModel.loadCategoryTotals()
+    }
+
+    val foodTotal by expenseViewModel.foodTotal.collectAsState()
+    val clothesTotal by expenseViewModel.clothesTotal.collectAsState()
+    val otherTotal by expenseViewModel.otherTotal.collectAsState()
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Dashboard", color = Color.White, fontWeight = FontWeight.Bold) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = GreenPrimary)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = GreenPrimary),
+                actions = {
+                    IconButton(onClick = onLogout) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.Logout, 
+                            contentDescription = "Logout", 
+                            tint = Color.White
+                        )
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -89,8 +114,8 @@ fun DashboardScreen(
 
             // 3. Category Breakdown Cards
             CategoryProgressCard(
-                categoryName = "Food & Dining",
-                amountSpent = 450.00,
+                categoryName = "Food",
+                amountSpent = foodTotal,
                 budget = 600.00,
                 color = ColorFood,
                 icon = Icons.Default.Restaurant,
@@ -99,8 +124,8 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             CategoryProgressCard(
-                categoryName = "Clothes & Shopping",
-                amountSpent = 29.99,
+                categoryName = "Clothes",
+                amountSpent = clothesTotal,
                 budget = 200.00,
                 color = ColorClothes,
                 icon = Icons.Default.ShoppingBag,
@@ -109,8 +134,8 @@ fun DashboardScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             CategoryProgressCard(
-                categoryName = "Other Expenses",
-                amountSpent = 120.50,
+                categoryName = "Other",
+                amountSpent = otherTotal,
                 budget = 150.00,
                 color = ColorOther,
                 icon = Icons.Default.AttachMoney,
@@ -149,8 +174,8 @@ fun GroupedBarChart() {
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 LegendItem(color = ColorFood, label = "Food")
-                LegendItem(color = ColorClothes, label = "Clth")
-                LegendItem(color = ColorOther, label = "Oth")
+                LegendItem(color = ColorClothes, label = "Clothes")
+                LegendItem(color = ColorOther, label = "Other")
             }
 
             Spacer(modifier = Modifier.height(24.dp))

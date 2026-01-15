@@ -1,14 +1,19 @@
 package com.example.smartexpense
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Shop
+import androidx.compose.material.icons.filled.ShoppingBag
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,20 +24,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherExpenseScreen(
     onNavigateToFood: () -> Unit = {},
     onNavigateToClothes: () -> Unit = {},
-    onNavigateToAdd: () -> Unit = {}
+    onNavigateToExpenseInput: () -> Unit,
+    onNavigateBack: () -> Unit,
+    onNavigateToExpenseUpdate: (Int) -> Unit,
+    expenseViewModel: ExpenseViewModel = viewModel()
 ) {
+    LaunchedEffect(Unit) {
+        expenseViewModel.loadExpensesByCategory("Other")
+    }
+    val expenses by expenseViewModel.expenses.collectAsState()
+
     Scaffold(
         topBar = {
             Column(modifier = Modifier.background(GreenPrimary).padding(bottom = 16.dp)) {
                 TopAppBar(
                     title = { Text("My Expenses", color = Color.White, fontSize = 18.sp) },
-                    navigationIcon = { Icon(Icons.Default.Menu, contentDescription = "Menu", tint = Color.White, modifier = Modifier.padding(start = 8.dp)) },
+                    navigationIcon = {
+                        IconButton(onClick = onNavigateBack) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                        }
+                    },
                     actions = { Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White, modifier = Modifier.padding(end = 16.dp)) },
                     colors = TopAppBarDefaults.topAppBarColors(containerColor = GreenPrimary)
                 )
@@ -50,7 +68,7 @@ fun OtherExpenseScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { onNavigateToAdd() },
+                onClick = { onNavigateToExpenseInput() },
                 containerColor = GreenPrimary,
                 contentColor = Color.White,
                 shape = CircleShape
@@ -63,9 +81,9 @@ fun OtherExpenseScreen(
 
             // Filter Chips
             Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
-                FilterChipItem("Food (2)", false, onNavigateToFood)
-                FilterChipItem("Clothes (1)", false, onNavigateToClothes)
-                FilterChipItem("Other (0)", true, {})
+                FilterChipItem("Food (${expenses.size})", false, onNavigateToFood)
+                FilterChipItem("Clothes (${expenses.size})", false, onNavigateToClothes)
+                FilterChipItem("Other (${expenses.size})", true, {})
             }
 
             // Total Expenses Card
@@ -73,31 +91,36 @@ fun OtherExpenseScreen(
                 Column(modifier = Modifier.padding(20.dp)) {
                     Text("Total Expenses", color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text("$0.00", color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+                    val total = expenses.sumOf { it.cost }
+                    Text(color = Color.White, fontSize = 24.sp, fontWeight = FontWeight.Bold, text = "$${"%.2f".format(total)}")
                 }
             }
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // Empty State
-            Column(
-                modifier = Modifier.fillMaxSize().padding(horizontal = 40.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Home, // Using Home as placeholder for empty wallet icon
-                    contentDescription = null,
-                    tint = Color.LightGray,
-                    modifier = Modifier.size(80.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("No expenses found", fontWeight = FontWeight.Bold, color = Color.DarkGray)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    "Start tracking your expenses by adding one",
-                    color = Color.Gray,
-                    fontSize = 14.sp,
-                    textAlign = TextAlign.Center
-                )
+            // List of Other Expenses
+            LazyColumn(contentPadding = PaddingValues(horizontal = 16.dp)) {
+                items(expenses) { expense ->
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToExpenseUpdate(expense.eid) } // <– use auto-generated id
+                    ){
+                        ExpenseItem(
+                            title = expense.title,
+                            amount = "$${expense.cost}",
+                            date = expense.date,
+                            category = expense.category,
+                            icon = Icons.Default.Shop,
+                            iconBgColor = Color(0xFFFFE0B2),
+                            iconTint = Color(0xFFE65100),
+                            onDelete = {
+                                expenseViewModel.deleteExpense(expense)
+                                expenseViewModel.loadExpensesByCategory("Other")
+                            }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
         }
     }

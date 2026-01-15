@@ -23,23 +23,19 @@ class MainActivity : ComponentActivity() {
                     composable("login") {
                         LoginScreen(
                             onNavigateToRegister = { navController.navigate("register") },
-                            // UPDATED: Navigate to dashboard on success
                             onLoginSuccess = {
                                 navController.navigate("dashboard") {
-                                    // Pop login from stack so back button doesn't go to login
                                     popUpTo("login") { inclusive = true }
                                 }
                             }
                         )
                     }
 
-                    //2. NEW: Register Screen
+                    // 2. Register Screen
                     composable("register") {
                         RegisterScreen(
-                            onNavigateBack = { navController.popBackStack() }, // Go back to login
+                            onNavigateBack = { navController.popBackStack() },
                             onRegisterSuccess = {
-                                // After successful register, go to dashboard or back to login
-                                // For now, let's go to dashboard
                                 navController.navigate("dashboard") {
                                     popUpTo("login") { inclusive = true }
                                 }
@@ -47,13 +43,17 @@ class MainActivity : ComponentActivity() {
                         )
                     }
 
-
-                    // 3. NEW: Dashboard Screen
+                    // 3. Dashboard Screen
                     composable("dashboard") {
                         DashboardScreen(
                             onNavigateToFood = { navController.navigate("food") },
                             onNavigateToClothes = { navController.navigate("clothes") },
-                            onNavigateToOther = { navController.navigate("other") }
+                            onNavigateToOther = { navController.navigate("other") },
+                            onLogout = {
+                                navController.navigate("login") {
+                                    popUpTo("dashboard") { inclusive = true }
+                                }
+                            }
                         )
                     }
 
@@ -62,14 +62,20 @@ class MainActivity : ComponentActivity() {
                         FoodExpenseScreen(
                             onNavigateToClothes = {
                                 navController.navigate("clothes") {
-                                    popUpTo("dashboard") // Keep back stack clean
+                                    popUpTo("dashboard")
                                 }
                             },
                             onNavigateToOther = {
                                 navController.navigate("other") {
                                     popUpTo("dashboard")
                                 }
+                            },
+                            onNavigateToExpenseInput = { navController.navigate("expense_input") },
+                            onNavigateBack = { navController.popBackStack() },
+                            onNavigateToExpenseUpdate = { expenseId ->
+                                navController.navigate("update_expense/$expenseId")
                             }
+
                         )
                     }
 
@@ -85,6 +91,11 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("other") {
                                     popUpTo("dashboard")
                                 }
+                            },
+                            onNavigateToExpenseInput = { navController.navigate("expense_input") },
+                            onNavigateBack = { navController.popBackStack() },
+                            onNavigateToExpenseUpdate = { expenseId ->
+                                navController.navigate("update_expense/$expenseId")
                             }
                         )
                     }
@@ -101,12 +112,26 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate("clothes") {
                                     popUpTo("dashboard")
                                 }
+                            },
+                            onNavigateToExpenseInput = { navController.navigate("expense_input") },
+                            onNavigateBack = { navController.popBackStack() },
+                            onNavigateToExpenseUpdate = { expenseId ->
+                                navController.navigate("update_expense/$expenseId")
                             }
                         )
                     }
-                    // 7. NEW: Add Expense Screen
-                    composable("add_expense") {
-                        AddExpenseScreen(
+
+                    // 7. Expense Input Form Screen
+                    composable("expense_input") {
+                        ExpenseInputForm(
+                            onNavigateBack = { navController.popBackStack() }
+                        )
+                    }
+                    // 8. Expense Update Screen
+                    composable("update_expense/{expenseId}") { backStackEntry ->
+                        val id = backStackEntry.arguments?.getString("expenseId")?.toIntOrNull() ?: 0
+                        ExpenseUpdateForm(
+                            expenseId = id,
                             onNavigateBack = { navController.popBackStack() }
                         )
                     }

@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 
+    id("org.jetbrains.kotlin.kapt")
+    id("kotlin-kapt")
+
+
     //id("com.android.application")
 
     // Add the Google services Gradle plugin
@@ -66,6 +70,9 @@ dependencies {
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    kapt(libs.androidx.room.compiler)
     // Import the Firebase BoM
     //implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
 }

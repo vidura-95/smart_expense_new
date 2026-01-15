@@ -9,7 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 // import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Email
@@ -55,14 +54,6 @@ fun LoginScreen(onNavigateToRegister: () -> Unit = {},
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Login", fontWeight = FontWeight.SemiBold)
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { /* Handle Back */ }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(

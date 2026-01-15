@@ -1,11 +1,15 @@
 package com.example.smartexpense
 
-import java.util.UUID
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "expenses")
 
 data class Expense(
-    val id: String = UUID.randomUUID().toString(),
+    @PrimaryKey(autoGenerate = true) val eid: Int = 0,
     val title: String,
-    val amount: Double,
-    val category: String
+    val category: String,
+    val cost: Double,
+    val date: String
 )
 
