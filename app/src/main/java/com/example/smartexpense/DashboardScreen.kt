@@ -86,7 +86,7 @@ fun DashboardScreen(
                 .padding(16.dp)
         ) {
             // 1. Comparison Card
-            ComparisonCard(currentMonthTotal = 850.00, lastMonthTotal = 920.00)
+            ComparisonCard(currentMonthTotal = foodTotal + clothesTotal + otherTotal, lastMonthTotal = 920.00)
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -126,7 +126,7 @@ fun DashboardScreen(
             CategoryProgressCard(
                 categoryName = "Clothes",
                 amountSpent = clothesTotal,
-                budget = 200.00,
+                budget = 500.00,
                 color = ColorClothes,
                 icon = Icons.Default.ShoppingBag,
                 onClick = onNavigateToClothes
@@ -136,7 +136,7 @@ fun DashboardScreen(
             CategoryProgressCard(
                 categoryName = "Other",
                 amountSpent = otherTotal,
-                budget = 150.00,
+                budget = 3000.00,
                 color = ColorOther,
                 icon = Icons.Default.AttachMoney,
                 onClick = onNavigateToOther
@@ -312,6 +312,9 @@ fun ComparisonCard(currentMonthTotal: Double, lastMonthTotal: Double) {
     val difference = abs(currentMonthTotal - lastMonthTotal)
     val percentage = if (lastMonthTotal > 0) (difference / lastMonthTotal) * 100 else 0.0
 
+    // optional helper - comparison card
+    fun Double.to2() = String.format("%.2f", this)
+
     Card(
         colors = CardDefaults.cardColors(containerColor = GreenPrimary),
         shape = RoundedCornerShape(16.dp),
@@ -324,7 +327,7 @@ fun ComparisonCard(currentMonthTotal: Double, lastMonthTotal: Double) {
                 fontSize = 14.sp
             )
             Text(
-                "$${currentMonthTotal}",
+                "$${currentMonthTotal.to2()}",
                 color = Color.White,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
@@ -361,6 +364,9 @@ fun CategoryProgressCard(
 ) {
     val progress = (amountSpent / budget).toFloat().coerceIn(0f, 1f)
 
+    // optional helper - progress card
+    fun Double.to2() = String.format("%.2f", this)
+
     Card(
         colors = CardDefaults.cardColors(containerColor = Color.White),
         shape = RoundedCornerShape(12.dp),
@@ -393,7 +399,7 @@ fun CategoryProgressCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(categoryName, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                    Text("$${amountSpent}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text("$${amountSpent.to2()}", fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -411,7 +417,7 @@ fun CategoryProgressCard(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = "Budget: $$budget",
+                    text = "Budget: $${budget.to2()}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
